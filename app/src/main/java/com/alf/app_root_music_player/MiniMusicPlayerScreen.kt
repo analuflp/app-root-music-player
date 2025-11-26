@@ -55,6 +55,7 @@ fun MiniMusicPlayerScreen(viewModel: playerViewModel) {
                 val isCurrent = index == currentIndex
                 MiniMusicCard(
                     musicTitle = music.title,
+                    coverResId = music.coverResId,
                     isCurrent = isCurrent,
                     isPlaying = isCurrent && isPlaying,
                     onPlayPauseClick = {

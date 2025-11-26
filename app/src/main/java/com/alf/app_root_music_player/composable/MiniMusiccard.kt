@@ -1,8 +1,7 @@
 package com.alf.app_root_music_player.composable
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -34,10 +33,13 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 
 @Composable
 fun MiniMusicCard(
     musicTitle: String,
+    coverResId: Int,
     isCurrent: Boolean,
     isPlaying: Boolean,
     onPlayPauseClick: () -> Unit,
@@ -66,11 +68,13 @@ fun MiniMusicCard(
                 .height(IntrinsicSize.Min)
         ) {
             // “Capa” quadradinha
-            Box(
+            Image(
+                painter = painterResource(id = coverResId),
+                contentDescription = "Capa da música",
                 modifier = Modifier
                     .size(64.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.DarkGray)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
             )
 
             Spacer(modifier = Modifier.width(12.dp))

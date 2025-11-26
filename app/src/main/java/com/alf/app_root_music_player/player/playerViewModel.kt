@@ -4,7 +4,7 @@ import android.content.Context
 import android.media.MediaPlayer
 import androidx.lifecycle.ViewModel
 import com.alf.app_root_music_player.R
-import com.alf.app_root_music_player.model.musicPlayer
+import com.alf.app_root_music_player.model.Music
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,8 +15,15 @@ class playerViewModel : ViewModel() {
 
     // Lista fixa de músicas (poderia vir de um repositório)
     private val musics = listOf(
-        musicPlayer("Winter", R.raw.winter_theme),
-        musicPlayer("Overworld", R.raw.overworld_theme),
+        Music(
+            "Winter",
+            R.raw.winter_theme,
+            coverResId = R.drawable.cover_winter),
+
+        Music(
+            "Overworld",
+            R.raw.overworld_theme,
+            coverResId = R.drawable.menu),
     )
 
     private val _uiState = MutableStateFlow(
