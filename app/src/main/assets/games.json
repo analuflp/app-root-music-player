@@ -1,0 +1,36 @@
+[
+  {
+    "id": "root",
+    "name": "Root",
+    "iconResName": "menu",
+    "soundtracks": [
+      {
+        "id": "winter",
+        "title": "Winter",
+        "audioResName": "winter_theme",
+        "coverResName": "cover_winter"
+      },
+      {
+        "id": "overworld",
+        "title": "Overworld",
+        "audioResName": "overworld_theme",
+        "coverResName": "menu"
+      },
+      {
+        "id": "battle",
+        "title": "Battle",
+        "audioResName": "battle_theme",
+        "coverResName": "batle_theme"
+      }
+    ],
+    "soundEffects": [
+      {
+        "id": "victory",
+        "title": "Victory",
+        "audioResName": "victory_theme",
+        "emoji": "🎉"
+      }
+    ]
+  }
+]
+
