@@ -3,17 +3,22 @@ package com.alf.app_root_music_player.player
 import android.content.Context
 import android.media.MediaPlayer
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.alf.app_root_music_player.R
 import com.alf.app_root_music_player.model.Music
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class playerViewModel : ViewModel() {
 
     private var mediaPlayer: MediaPlayer? = null
+    private var progressJob: Job? = null
 
-    // Lista fixa de músicas (poderia vir de um repositório)
+    // Lista fixa de músicas
     private val musics = listOf(
         Music(
             "Winter",
@@ -24,6 +29,14 @@ class playerViewModel : ViewModel() {
             "Overworld",
             R.raw.overworld_theme,
             coverResId = R.drawable.menu),
+        Music(
+            "Battle",
+            R.raw.battle_theme,
+            coverResId = R.drawable.batle_theme),
+        Music(
+            "Victory",
+            R.raw.victory_theme,
+            coverResId = R.drawable.victory_theme)
     )
 
     private val _uiState = MutableStateFlow(
@@ -45,7 +58,7 @@ class playerViewModel : ViewModel() {
     fun onPlayPauseClicked(context: Context) {
         val current = _uiState.value
 
-        // Se nenhuma música foi selecionada ainda, começa pela primeira
+        // Se nenhuma música está selecionada ainda → toca a primeira
         if (current.currentIndex == -1) {
             if (musics.isNotEmpty()) {
                 playMusic(0, context)
@@ -54,16 +67,39 @@ class playerViewModel : ViewModel() {
         }
 
         val mp = mediaPlayer
+
+        // Se o player não existe mais, recria e toca a música atual
         if (mp == null) {
-            // Se por algum motivo o player foi liberado, recria e toca a atual
             playMusic(current.currentIndex, context)
+            return
+        }
+
+        // Se já existe player
+        if (mp.isPlaying) {
+            mp.pause()
+            progressJob?.cancel()
+            _uiState.value = current.copy(isPlaying = false)
         } else {
-            if (mp.isPlaying) {
-                mp.pause()
-                _uiState.value = current.copy(isPlaying = false)
-            } else {
-                mp.start()
-                _uiState.value = current.copy(isPlaying = true)
+
+            mp.start()
+            startProgressUpdates()
+            _uiState.value = current.copy(isPlaying = true)
+        }
+    }
+
+    private fun startProgressUpdates() {
+        progressJob?.cancel()
+
+        progressJob = viewModelScope.launch {
+            while (true) {
+                val mp = mediaPlayer ?: break
+                if (!mp.isPlaying) break
+
+                _uiState.value = _uiState.value.copy(
+                    currentPosition = mp.currentPosition,
+                    duration = mp.duration
+                )
+                delay(200)
             }
         }
     }
@@ -93,21 +129,31 @@ class playerViewModel : ViewModel() {
     }
 
     private fun playMusic(index: Int, context: Context) {
-        // Libera o player antigo
+        progressJob?.cancel()
         mediaPlayer?.release()
 
         val music = musics[index]
 
         mediaPlayer = MediaPlayer.create(context, music.resId).apply {
-            // 🔁 IMPORTANTE: música fica loopando sozinha
+            // Loop
             isLooping = true
             start()
         }
 
-        _uiState.value = _uiState.value.copy(
-            currentIndex = index,
-            isPlaying = true
-        )
+        progressJob = viewModelScope.launch {
+            while (true) {
+                val mp = mediaPlayer ?: break
+
+                _uiState.value = _uiState.value.copy(
+                    currentIndex = index,
+                    isPlaying = true,
+                    currentPosition = mp.currentPosition,
+                    duration = mp.duration
+                )
+
+                delay(200)
+            }
+        }
     }
 
     override fun onCleared() {
